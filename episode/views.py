@@ -27,6 +27,31 @@ def episode(request, id):
       'ep': ep
     }
     return HttpResponse(template.render(context, request))
+      
+def prev_episode(request, id):
+    ep = Episode.objects.get(id=id)
+    prev_ep = ep.prev()
+    if prev_ep:
+        template = loader.get_template('episode.html')
+        context = {
+            'ep': prev_ep
+        }
+        return HttpResponse(template.render(context, request))
+    else:
+        return HttpResponse("This is the first season, first epidson", status=404)
+
+def next_episode(request, id):
+    ep = Episode.objects.get(id=id)
+    next_ep = ep.next()
+    if next_ep:
+        template = loader.get_template('episode.html')
+        context = {
+            'ep': next_ep
+        }
+        return HttpResponse(template.render(context, request))
+    else:
+        return HttpResponse("No more epidson!!", status=404)
+
 
 def casts(request):
   casts = Cast.objects.all().values()
