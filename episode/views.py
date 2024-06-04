@@ -5,10 +5,20 @@ from django.template import loader
 from .models import *
 
 def seasons(request):
-  seasons = Season.objects.all().values()
+  seasons = Season.objects.all()
   template = loader.get_template('all_seasons.html')
   context = {
     'seasons': seasons,
+  }
+  return HttpResponse(template.render(context, request))
+
+def season(request, id):
+  season = Season.objects.get(id = id)
+  episodes = Episode.objects.filter(season = season)
+  template = loader.get_template('episodes_in_season.html')
+  context = {
+    'season': season,
+    'episodes': episodes
   }
   return HttpResponse(template.render(context, request))
 

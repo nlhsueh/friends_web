@@ -7,6 +7,7 @@ from django.db.models.functions import Cast
 class Season(models.Model):
     season_number = models.IntegerField() # 第幾季
     description = models.TextField(max_length=1500) # 該季主要劇情描述
+    img = models.ImageField(upload_to='uploaded_img', null=True)
 
     def __str__(self):
       #  d = self.description[0,20]
@@ -24,7 +25,7 @@ class Episode(models.Model):
     def next(self):
         # Find next episode in the same season
         try:
-            next_ep_number = ' ' + str(int(self.ep_number) + 1)
+            next_ep_number = self.ep_number + 1
             return Episode.objects.get(season=self.season, ep_number=next_ep_number)
         except Episode.DoesNotExist:
             pass
@@ -38,7 +39,7 @@ class Episode(models.Model):
     def prev(self):
         # Find previous episode in the same season
         try:
-            prev_ep_number = ' ' + str(int(self.ep_number) - 1)
+            prev_ep_number = self.ep_number - 1
             return Episode.objects.get(season=self.season, ep_number=prev_ep_number)
         except Episode.DoesNotExist:
             pass
@@ -47,7 +48,7 @@ class Episode(models.Model):
         try:
             prev_season = Season.objects.get(pk=self.season.pk - 1)
             count = Episode.objects.filter(season=prev_season).count()
-            return Episode.objects.get(season=prev_season, ep_number=' ' + str(count))
+            return Episode.objects.get(season=prev_season, ep_number=count)
         except Season.DoesNotExist:
             return None
         
@@ -56,9 +57,16 @@ class Episode(models.Model):
       return f"EP{self.season.season_number}-{self.ep_number}: {self.ep_title}"  
 
 class Cast (models.Model):
+    GENDER_TYPE = [
+        ('M', 'Male'), 
+        ('F', 'Female')
+    ]
     name = models.CharField(max_length=50)
     img_url = models.CharField(max_length=250)
     introduction = models.TextField(max_length=2000)
+    gender = models.CharField(null=True, choices=GENDER_TYPE, 
+                              max_length=10)
+    born_year = models.IntegerField(null=True)
 
     def __str__(self):
       return (self.name)
